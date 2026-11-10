@@ -1,0 +1,146 @@
+{
+ "pkg": "COURSE_FOLDER",
+ "prefix": "PEC",
+ "title": "Position Elbows Closer",
+ "targets": [
+  "1.10",
+  "1.12",
+  "1.14",
+  "1.16",
+  "1.17",
+  "5.10",
+  "5.12",
+  "5.14",
+  "5.16",
+  "5.17",
+  "8.1",
+  "8.2",
+  "8.3",
+  "8.4",
+  "8.5"
+ ],
+ "codes": [
+  [
+   "Image (1S).png",
+   "1.10",
+   "PEC02-1S"
+  ],
+  [
+   "Image (1B).png",
+   "1.10",
+   "PEC02-1B"
+  ],
+  [
+   "Image (2S).png",
+   "1.10",
+   "PEC02-2S"
+  ],
+  [
+   "Image(2B).png",
+   "1.10",
+   "PEC02-2B"
+  ],
+  [
+   "Image.jpeg",
+   "1.12",
+   "PEC03-1"
+  ],
+  [
+   "photo1.jpeg",
+   "1.14",
+   "PEC04-1S"
+  ],
+  [
+   "Image.jpeg",
+   "1.14",
+   "PEC04-1B"
+  ],
+  [
+   "9097-3-S Man moving box (Dude).png",
+   "1.14",
+   "PEC04-2S"
+  ],
+  [
+   "9097-3-B.png",
+   "1.14",
+   "PEC04-2B"
+  ],
+  [
+   "eSIM KA PEC Photo Stressed.png",
+   "1.14",
+   "PEC04-3S"
+  ],
+  [
+   "eSIM KA PEC Photo Better.png",
+   "1.14",
+   "PEC04-3B"
+  ],
+  [
+   "bridge2.jpeg",
+   "1.16",
+   "PEC05-1"
+  ],
+  [
+   "bob bridge2.jpeg",
+   "1.17",
+   "PEC05-2"
+  ],
+  [
+   "bob bridge2.jpeg",
+   "5.17",
+   "PEC05-2"
+  ],
+  [
+   "1847-3-S man driving truck.png",
+   "8.1",
+   "PEC02-3"
+  ],
+  [
+   "1847-3-B.png",
+   "8.1",
+   "PEC02-4"
+  ],
+  [
+   "pec03.png",
+   "8.2",
+   "PEC03-2"
+  ],
+  [
+   "test2b.jpeg",
+   "8.2",
+   "PEC03-3"
+  ],
+  [
+   "Image (2).jpg",
+   "8.3",
+   "PEC05-3"
+  ],
+  [
+   "Image (3).jpg",
+   "8.3",
+   "PEC05-4"
+  ],
+  [
+   "eSIM KA Smart Set Up Stressed.png",
+   "8.4",
+   "PEC01-1"
+  ],
+  [
+   "eSIM KA Smart Set Up Better.png",
+   "8.4",
+   "PEC01-2"
+  ],
+  [
+   "test5a.jpeg",
+   "8.5",
+   "PEC04-4"
+  ],
+  [
+   "test5b.jpeg",
+   "8.5",
+   "PEC04-5"
+  ]
+ ],
+ "out_csv": "templates/PEC/PEC_photo_list.csv",
+ "out_guide": "templates/PEC/PEC_photo_guide.png"
+}

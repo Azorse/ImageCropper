@@ -1,0 +1,141 @@
+{
+ "pkg": "COURSE_FOLDER",
+ "prefix": "UMW",
+ "title": "Use Mid-range Wrist Motions",
+ "targets": [
+  "1.8",
+  "1.10",
+  "1.12",
+  "1.15",
+  "1.18",
+  "5.8",
+  "5.10",
+  "5.12",
+  "5.15",
+  "5.18",
+  "8.1",
+  "8.2",
+  "8.3",
+  "8.4",
+  "8.5"
+ ],
+ "codes": [
+  [
+   "Image.ashx.png",
+   "1.8",
+   "UMW01-1S"
+  ],
+  [
+   "Image2.ashx.png",
+   "1.8",
+   "UMW01-1B"
+  ],
+  [
+   "32-4-S Man carrying hose_weight on shoulder.png",
+   "1.8",
+   "UMW03-1S"
+  ],
+  [
+   "2461-3-S Woman using Stapler (No Ethnic).png",
+   "1.10",
+   "UMW02-1S"
+  ],
+  [
+   "2461-3-B.png",
+   "1.10",
+   "UMW02-1B"
+  ],
+  [
+   "11441-3-B.png",
+   "1.10",
+   "UMW02-2B"
+  ],
+  [
+   "Image.ashx.png",
+   "1.10",
+   "UMW02-3S"
+  ],
+  [
+   "Image2.ashx.png",
+   "1.10",
+   "UMW02-3B"
+  ],
+  [
+   "32-4-B.png",
+   "1.12",
+   "UMW03-1B"
+  ],
+  [
+   "umw04a.ashx.png",
+   "1.15",
+   "UMW04-1"
+  ],
+  [
+   "umw04b.ashx.png",
+   "1.15",
+   "UMW04-2"
+  ],
+  [
+   "umw05aStressed.png",
+   "1.18",
+   "UMW05-1S"
+  ],
+  [
+   "umw05aBetter.png",
+   "1.18",
+   "UMW05-1B"
+  ],
+  [
+   "Image (28).png",
+   "8.1",
+   "UMW01-2"
+  ],
+  [
+   "Image (29).png",
+   "8.1",
+   "UMW01-3"
+  ],
+  [
+   "Image (30).png",
+   "8.2",
+   "UMW03-2"
+  ],
+  [
+   "Image (31).png",
+   "8.2",
+   "UMW03-3"
+  ],
+  [
+   "Image (32).png",
+   "8.3",
+   "UMW02-4"
+  ],
+  [
+   "Image (33).png",
+   "8.3",
+   "UMW02-5"
+  ],
+  [
+   "Image (34).png",
+   "8.4",
+   "UMW04-3"
+  ],
+  [
+   "Image (35).png",
+   "8.4",
+   "UMW04-4"
+  ],
+  [
+   "Image (36).png",
+   "8.5",
+   "UMW05-2"
+  ],
+  [
+   "Image (37).png",
+   "8.5",
+   "UMW05-3"
+  ]
+ ],
+ "out_csv": "templates/UMW/UMW_photo_list.csv",
+ "out_guide": "templates/UMW/UMW_photo_guide.png"
+}

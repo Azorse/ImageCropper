@@ -1,3 +1,4 @@
 [
-  { "name": "Position Elbows Closer (PEC)", "csv": "templates/PEC/PEC_photo_list.csv", "guide": "templates/PEC/PEC_photo_guide.png" }
+  { "name": "Position Elbows Closer (PEC)", "csv": "templates/PEC/PEC_photo_list.csv", "guide": "templates/PEC/PEC_photo_guide.png" },
+  { "name": "Use Mid-range Wrist Motions (UMW)", "csv": "templates/UMW/UMW_photo_list.csv", "guide": "templates/UMW/UMW_photo_guide.png" }
 ]
