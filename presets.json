@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "presets": [
+    { "id": "square1",    "name": "Square 1",    "width": 400,  "height": 400 },
+    { "id": "square2",    "name": "Square 2",    "width": 800,  "height": 800 },
+    { "id": "portrait1",  "name": "Portrait 1",  "width": 600,  "height": 800 },
+    { "id": "portrait2",  "name": "Portrait 2",  "width": 720,  "height": 1280 },
+    { "id": "landscape1", "name": "Landscape 1", "width": 640,  "height": 360 },
+    { "id": "landscape2", "name": "Landscape 2", "width": 1280, "height": 720 }
+  ],
+  "output": { "format": "auto", "quality": 90 }
+}

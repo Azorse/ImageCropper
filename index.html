@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch Image Cropper</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<script src="js/boot-check.js"></script>
+<script src="vendor/papaparse.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">Batch Image Cropper</div>
+  <nav class="tabs">
+    <button class="tab" data-view="setup" aria-current="page">1. Setup</button>
+    <button class="tab" data-view="crop" disabled>2. Crop</button>
+    <button class="tab" data-view="review" disabled>3. Review &amp; export</button>
+  </nav>
+  <button class="tab" id="btnSettings">Settings</button>
+</header>
+<div id="bootError" class="note err" hidden style="margin:12px 20px 0"></div>
+
+<main>
+<!-- SETUP -->
+<section class="view active" id="view-setup">
+  <div class="page">
+    <h1>Set up a batch</h1>
+    <p class="sub">Load a CSV that lists your photos and their sizes, then load the photos. Nothing is uploaded anywhere. Everything stays on this computer.</p>
+
+    <div class="card step">
+      <div class="num">1</div>
+      <div class="step-body">
+        <h2>Photo list (CSV)</h2>
+        <p class="meta">Columns: <code>filename</code>, <code>preset</code>, and optionally <code>output_filename</code>. <button class="linkbtn" id="btnSample">Download a sample CSV</button></p>
+        <div class="row"><button class="btn" id="btnCsv">Choose CSV</button><span class="meta" id="csvStatus">No file chosen</span></div>
+        <div id="csvMsgs"></div>
+        <input type="file" id="inCsv" accept=".csv,text/csv" hidden>
+      </div>
+    </div>
+
+    <div class="card step">
+      <div class="num">2</div>
+      <div class="step-body">
+        <h2>Photos</h2>
+        <p class="meta">Choose a ZIP file or a folder that has the photos in it. Your originals are never changed.</p>
+        <div class="row"><button class="btn" id="btnZip">Choose ZIP</button><button class="btn" id="btnFolder">Choose folder</button><span class="meta" id="imgStatus">No photos chosen</span></div>
+        <div id="imgMsgs"></div>
+        <input type="file" id="inZip" accept=".zip,application/zip" hidden>
+        <input type="file" id="inFolder" webkitdirectory multiple hidden>
+      </div>
+    </div>
+
+    <div class="card step">
+      <div class="num">3</div>
+      <div class="step-body">
+        <h2>Check and start</h2>
+        <div id="validation" class="meta">Load the CSV and the photos to see what's ready.</div>
+        <div class="row" style="margin-top:14px"><button class="btn primary big" id="btnStart" disabled>Start cropping</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CROP -->
+<section class="view" id="view-crop">
+  <div class="crophead">
+    <div style="min-width:0">
+      <div class="fname" id="cFile"></div>
+      <div class="meta" id="cOut"></div>
+    </div>
+    <div><span class="meta">Size:</span> <b id="cPreset"></b> <span class="meta" id="cSize"></span></div>
+    <span class="pill todo" id="cState"></span>
+    <div style="margin-left:auto;min-width:220px">
+      <div class="meta"><span id="cPos"></span> &middot; <span id="cProgress"></span></div>
+      <div class="progressbar"><div id="cBar"></div></div>
+    </div>
+  </div>
+  <div class="cropbody">
+    <div class="stage" id="stage"><canvas id="stageCanvas"></canvas><div class="stagemsg" id="stageMsg">Loading photo...</div></div>
+    <aside class="side">
+      <h3>Final image</h3>
+      <canvas id="preview" width="228" height="128"></canvas>
+      <div class="meta" id="cUsing" style="margin-top:6px"></div>
+      <h3>Zoom</h3>
+      <div class="zoomrow">
+        <button class="btn zbtn" id="zOut" title="Zoom out">&minus;</button>
+        <input type="range" id="zSlider" min="0" max="1000" value="0" aria-label="Zoom">
+        <button class="btn zbtn" id="zIn" title="Zoom in">+</button>
+      </div>
+      <div class="meta" id="zInfo" style="margin-top:6px"></div>
+      <div id="cWarn" class="note warn" hidden></div>
+      <h3>Tips</h3>
+      <div class="keys">
+        Drag the photo to choose what shows inside the frame. Scroll or use the slider to zoom.<br><br>
+        <kbd>Enter</kbd> confirm<br>
+        <kbd>&larr;</kbd> previous &nbsp; <kbd>&rarr;</kbd> skip<br>
+        <kbd>+</kbd> <kbd>&minus;</kbd> zoom &nbsp; <kbd>R</kbd> reset
+      </div>
+    </aside>
+  </div>
+  <div class="cropfoot">
+    <button class="btn" id="btnPrev">&larr; Previous</button>
+    <button class="btn" id="btnReset">Reset crop</button>
+    <div class="spacer"></div>
+    <button class="btn" id="btnSkip">Skip for now</button>
+    <button class="btn primary big" id="btnConfirm">Confirm &amp; next</button>
+  </div>
+</section>
+
+<!-- REVIEW -->
+<section class="view" id="view-review">
+  <div class="page">
+    <h1>Review and export</h1>
+    <p class="sub">Check the batch, fix anything that needs it, then download the finished photos as one ZIP.</p>
+    <div class="stats" id="rStats"></div>
+    <div id="rNotes"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">Photos</h2><label class="meta"><input type="checkbox" id="rOnlyIssues"> Only show photos that need attention</label></div>
+      <div class="tablewrap" style="max-height:420px">
+        <table><thead><tr><th>Row</th><th>Photo</th><th>Size</th><th>Status</th><th></th></tr></thead><tbody id="rBody"></tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Export</h2>
+      <p class="meta" id="rFormat"></p>
+      <div class="row"><button class="btn primary big" id="btnExport">Download ZIP</button><span class="meta" id="exStatus"></span></div>
+      <div class="progressbar" id="exBarWrap" hidden><div id="exBar"></div></div>
+      <div id="exResult"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- SETTINGS -->
+<dialog id="settings">
+  <div class="dlg">
+    <h2>Settings</h2>
+    <p class="meta">Changes are saved in this browser. To share them, use Export settings and send the file. If you save that file as <code>presets.json</code> next to this page on the server, everyone gets it as their default.</p>
+    <h3>Size presets</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Width (px)</th><th>Height (px)</th></tr></thead>
+      <tbody id="setBody"></tbody>
+    </table>
+    <p class="meta">The preset column in the CSV can use either the ID or the name.</p>
+    <h3>Output</h3>
+    <div class="row">
+      <label>File type
+        <select id="setFormat">
+          <option value="auto">JPG (PNGs with transparency stay PNG)</option>
+          <option value="original">Same as the original</option>
+          <option value="jpg">Always JPG</option>
+          <option value="png">Always PNG</option>
+        </select>
+      </label>
+      <label>JPG quality <input type="number" id="setQuality" min="50" max="100" step="1"> %</label>
+    </div>
+    <div id="setMsg"></div>
+    <div class="row dlg-actions">
+      <button class="btn" type="button" id="setRestore">Restore defaults</button>
+      <button class="btn" type="button" id="setExport">Export settings</button>
+      <button class="btn" type="button" id="setImport">Import settings</button>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="setClose">Close</button>
+      <button class="btn primary" type="button" id="setSave">Save changes</button>
+    </div>
+    <input type="file" id="inSettings" accept=".json,application/json" hidden>
+  </div>
+</dialog>
+
+</body>
+</html>
