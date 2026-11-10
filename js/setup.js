@@ -4,11 +4,13 @@ import { $, esc, plural, download } from './utils.js';
 import { cfg } from './config.js';
 import { state } from './state.js';
 import { clearProgress } from './progress.js';
-import { onCsvFile, onZipFile, onFolder } from './batch.js';
+import { onCsvFile, onZipFile, onFolder, isTemplate } from './batch.js';
 import { startCropping } from './workspace.js';
 
 export function renderSetup() {
-  $('#csvStatus').textContent = state.csvName ? `${state.csvName} · ${plural(state.rows.length, 'row')}` : 'No file chosen';
+  $('#csvStatus').textContent = state.csvName
+    ? `${state.csvName} · ${isTemplate() ? `course template, ${plural(state.rows.length, 'photo slot')}` : plural(state.rows.length, 'row')}`
+    : 'No file chosen';
   let csvHtml = '';
   if (state.csvErrors.length) csvHtml += `<div class="note err">${state.csvErrors.map(esc).join('<br>')}</div>`;
   if (state.csvWarnings.length) {
@@ -42,8 +44,12 @@ export function renderSetup() {
     html += `<div id="checkTxt">Checking photos: ${state.checking.done} of ${state.checking.total}</div>` +
             `<div class="progressbar"><div id="checkBar" style="width:${pct}%"></div></div>`;
   } else {
-    html += `<div><b>${rows.length}</b> photos listed. <b>${ready.length}</b> ready to crop` +
-            `${bad.length ? `, <b>${bad.length}</b> with problems` : ''}.</div>`;
+    const kept = rows.filter(r => r.kind === 'skip').length;
+    html += isTemplate()
+      ? `<div><b>${rows.length - kept}</b> of ${rows.length} photo slots have a new photo. <b>${ready.length}</b> ready to crop` +
+        `${bad.length ? `, <b>${bad.length}</b> with problems` : ''}. The other ${kept} keep the course's current photo.</div>`
+      : `<div><b>${rows.length}</b> photos listed. <b>${ready.length}</b> ready to crop` +
+        `${bad.length ? `, <b>${bad.length}</b> with problems` : ''}.</div>`;
   }
 
   if (state.restored) {
@@ -57,14 +63,18 @@ export function renderSetup() {
     html += `<div class="note ${bad.length ? 'err' : 'warn'}">${bad.length
       ? 'Photos with problems will be skipped and listed in the export report. You can fix the CSV or the photos and load them again, or carry on without them.'
       : 'Heads up on a few photos:'}</div>`;
-    html += `<div class="tablewrap"><table><thead><tr><th>Row</th><th>Photo</th><th>Problem</th></tr></thead><tbody>${
-      flagged.map(r => `<tr><td>${r.line}</td><td>${esc(r.filename || '(blank)')}</td><td>${esc(r.issue || r.warn)}</td></tr>`).join('')
+    html += `<div class="tablewrap"><table><thead><tr><th>${isTemplate() ? 'Code' : 'Row'}</th><th>Photo</th><th>Problem</th></tr></thead><tbody>${
+      flagged.map(r => `<tr><td>${isTemplate() ? esc(r.code) : r.line}</td><td>${esc(r.filename || '(blank)')}</td><td>${esc(r.issue || r.warn)}</td></tr>`).join('')
     }</tbody></table></div>`;
   }
   box.innerHTML = html;
 
   const fresh = $('#btnFresh');
   if (fresh) fresh.onclick = () => { clearProgress(); renderSetup(); };
+
+  if (isTemplate() && !ready.length && !bad.length && !state.checking) {
+    box.innerHTML += '<div class="note warn">None of the photo slots have a photo filled in. Put each new photo\'s filename in the your_photo column of the template, then load it again.</div>';
+  }
 
   if (!state.checking && !pending.length && ready.length) {
     btn.disabled = false;
@@ -87,7 +97,25 @@ function downloadSampleCsv() {
   download(new Blob([csv], { type: 'text/csv' }), 'sample_photo_list.csv');
 }
 
+/** Course templates live in templates/, listed in templates/index.json. */
+async function loadTemplateList() {
+  const box = $('#templateList');
+  try {
+    const res = await fetch('templates/index.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error();
+    const list = await res.json();
+    if (!Array.isArray(list) || !list.length) throw new Error();
+    box.innerHTML = list.map(t => `<div class="tpl"><b>${esc(t.name)}</b>` +
+      `<a class="btn" href="${esc(t.csv)}" download>Photo list (CSV)</a>` +
+      `<a class="btn" href="${esc(t.guide)}" target="_blank" rel="noopener">Photo guide</a></div>`).join('');
+    $('#templatesCard').hidden = false;
+  } catch (e) {
+    $('#templatesCard').hidden = true;
+  }
+}
+
 export function initSetup() {
+  loadTemplateList();
   $('#btnCsv').onclick = () => $('#inCsv').click();
   $('#btnZip').onclick = () => $('#inZip').click();
   $('#btnFolder').onclick = () => $('#inFolder').click();

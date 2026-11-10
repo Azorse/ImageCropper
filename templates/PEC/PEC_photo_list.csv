@@ -1,0 +1,24 @@
+code,slides,your_photo,width,height,format,manual_in_storyline,storyline_name,hotspot_guide
+PEC02-1S,"Slides 1.10, 5.10",,192,256,png,,Image (1S).png,
+PEC02-1B,"Slides 1.10, 5.10",,192,256,png,,Image (1B).png,
+PEC02-2S,"Slides 1.10, 5.10",,192,256,png,,Image (2S).png,
+PEC02-2B,"Slides 1.10, 5.10",,192,256,png,,Image(2B).png,
+PEC03-1,"Slides 1.12, 5.12",,768,1024,jpg,yes: hotspots,Image.jpeg,"0.1875,0.375,0.1875,0.1406;0.3333,0.2031,0.2292,0.1562;0.5,0.3594,0.2292,0.1719;0.5182,0.5391,0.1875,0.1406;0.4766,0.6875,0.2708,0.1719"
+PEC04-1S,"Slides 1.14, 5.14",,508,678,jpg,,photo1.jpeg,
+PEC04-1B,"Slides 1.14, 5.14",,1479,2047,jpg,,Image.jpeg,
+PEC04-2S,"Slides 1.14, 5.14",,564,780,png,yes: flattened button image,9097-3-S Man moving box (Dude).png,
+PEC04-2B,"Slides 1.14, 5.14",,1158,1600,png,yes: flattened button image,9097-3-B.png,
+PEC04-3S,"Slides 1.14, 5.14",,347,480,png,,eSIM KA PEC Photo Stressed.png,
+PEC04-3B,"Slides 1.14, 5.14",,351,480,png,,eSIM KA PEC Photo Better.png,
+PEC05-1,"Slides 1.16, 5.16",,1372,1904,jpg,yes: hotspots,bridge2.jpeg,"0.4988,0.3883,0.2291,0.1398;0.179,0.6835,0.1671,0.1553;0.8234,0.2951,0.1718,0.1243;0.4224,0.1087,0.21,0.1553;0.2888,0.2932,0.1504,0.2252"
+PEC05-2,"Slides 1.17, 5.17",,1325,1628,jpg,yes: hotspots,bob bridge2.jpeg,"0.1742,0.3728,0.21,0.1553;0.3652,0.6214,0.1671,0.1553;0.5943,0.3883,0.2291,0.1398;0.6897,0.7612,0.2291,0.1553;0.6706,0.0932,0.1504,0.2252"
+PEC02-3,Slide 8.1,,384,512,png,,1847-3-S man driving truck.png,
+PEC02-4,Slide 8.1,,384,512,png,,1847-3-B.png,
+PEC03-2,Slide 8.2,,386,514,png,,pec03.png,
+PEC03-3,Slide 8.2,,386,514,jpg,,test2b.jpeg,
+PEC05-3,Slide 8.3,,1242,1075,jpg,,Image (2).jpg,
+PEC05-4,Slide 8.3,,1226,1061,jpg,,Image (3).jpg,
+PEC01-1,Slide 8.4,,381,508,png,,eSIM KA Smart Set Up Stressed.png,
+PEC01-2,Slide 8.4,,387,516,png,,eSIM KA Smart Set Up Better.png,
+PEC04-4,Slide 8.5,,384,512,jpg,,test5a.jpeg,
+PEC04-5,Slide 8.5,,384,512,jpg,,test5b.jpeg,

@@ -93,3 +93,9 @@ dialog::backdrop{background:rgba(20,30,36,.45)}
   .side{width:auto;border-left:none;border-top:1px solid var(--line);max-height:40vh}
   .fname{max-width:80vw}
 }
+
+/* Course templates */
+.tpl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.tpl:first-child{border-top:none}
+.tpl b{margin-right:auto}
+a.btn{text-decoration:none;display:inline-block}

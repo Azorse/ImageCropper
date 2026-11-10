@@ -12,15 +12,34 @@ import { clearBitmapCache } from './workspace.js';
 /* ---------- CSV ---------- */
 
 /*
+ * Two kinds of CSV are accepted:
+ *
+ *   Preset list:     filename, preset, [output_filename]
+ *   Course template: code, slides, your_photo, width, height, format, ...
+ *                    (made from a published course; one row per image slot)
+ *
  * Each row gets:
  *   index, line        position in the CSV (line counts the header as line 1)
- *   filename, presetRaw, outputRaw   values from the CSV
+ *   filename           the photo to crop
  *   key                lowercase filename used to find the photo
- *   preset             the matched preset, or null
+ *   preset             { name, width, height } to crop to
  *   outName            output filename before the extension is set
- *   kind               'ready' | 'bad' | 'pending'
+ *   kind               'ready' | 'bad' | 'pending' | 'skip' (template slot left blank)
  *   issue, warn        messages for the user
+ * Template rows also get: code, slides, fmt, manual, storyline, hotspots.
  */
+const TEMPLATE_FIELDS = ['code', 'slides', 'your_photo', 'width', 'height'];
+
+/** Slide numbers like "1.10". Reading them as text means Excel can't turn 1.10 into 1.1. */
+const parseSlides = s => (String(s || '').match(/\d+\.\d+/g) || []);
+
+/** "x,y,w,h;x,y,w,h" as fractions of the image. */
+function parseHotspots(s) {
+  return String(s || '').split(';').map(part => part.split(',').map(Number))
+    .filter(v => v.length === 4 && v.every(Number.isFinite))
+    .map(([x, y, w, h]) => ({ x, y, w, h }));
+}
+
 export function parseCsv(text) {
   state.csvErrors = [];
   state.csvWarnings = [];
@@ -31,23 +50,46 @@ export function parseCsv(text) {
     transformHeader: h => h.trim().toLowerCase().replace(/\s+/g, '_')
   });
   const fields = res.meta.fields || [];
-  const missing = ['filename', 'preset'].filter(f => !fields.includes(f));
+  state.mode = fields.includes('code') && fields.includes('width') ? 'template' : 'presets';
+  const required = state.mode === 'template' ? TEMPLATE_FIELDS : ['filename', 'preset'];
+  const missing = required.filter(f => !fields.includes(f));
   if (missing.length) {
-    state.csvErrors.push(
-      `The CSV needs a column named ${missing.map(m => `"${m}"`).join(' and a column named ')}. ` +
-      `The first row should read: filename,preset. Columns found: ${fields.length ? fields.join(', ') : 'none'}.`);
+    state.csvErrors.push(state.mode === 'template'
+      ? `This looks like a course template, but it's missing the ${missing.join(', ')} column${missing.length > 1 ? 's' : ''}. Download a fresh copy of the template and fill that in.`
+      : `The CSV needs a column named ${missing.map(m => `"${m}"`).join(' and a column named ')}. ` +
+        `The first row should read: filename,preset. Columns found: ${fields.length ? fields.join(', ') : 'none'}.`);
     return;
   }
   res.errors.slice(0, 5).forEach(e => state.csvWarnings.push(`Line ${(e.row ?? 0) + 2}: ${e.message}`));
-  res.data.forEach((r, i) => state.rows.push({
-    index: i,
-    line: i + 2,
-    filename: basename(r.filename),
-    presetRaw: String(r.preset ?? '').trim(),
-    outputRaw: basename(r.output_filename ?? '')
-  }));
-  if (!state.rows.length) state.csvErrors.push('The CSV has a header row but no photos listed under it.');
+  res.data.forEach((r, i) => {
+    const row = { index: i, line: i + 2 };
+    if (state.mode === 'template') {
+      Object.assign(row, {
+        code: String(r.code ?? '').trim(),
+        slides: parseSlides(r.slides),
+        filename: basename(r.your_photo),
+        width: Number(r.width),
+        height: Number(r.height),
+        fmt: String(r.format ?? '').trim().toLowerCase() === 'png' ? 'png' : 'jpg',
+        manual: String(r.manual_in_storyline ?? '').trim(),
+        storyline: String(r.storyline_name ?? '').trim(),
+        hotspots: parseHotspots(r.hotspot_guide),
+        presetRaw: '',
+        outputRaw: ''
+      });
+    } else {
+      Object.assign(row, {
+        filename: basename(r.filename),
+        presetRaw: String(r.preset ?? '').trim(),
+        outputRaw: basename(r.output_filename ?? '')
+      });
+    }
+    state.rows.push(row);
+  });
+  if (!state.rows.length) state.csvErrors.push('The CSV has a header row but nothing listed under it.');
 }
+
+export const isTemplate = () => state.mode === 'template';
 
 /** Recheck every row against the presets, the photos and each other. Safe to call any time. */
 export function computeStatuses() {
@@ -58,24 +100,37 @@ export function computeStatuses() {
     r.kind = 'ready';
     r.issue = null;
     r.warn = null;
-    r.preset = resolvePreset(r.presetRaw);
     r.key = r.filename.toLowerCase();
-    r.outName = r.outputRaw || r.filename;
     const bad = msg => { r.kind = 'bad'; r.issue = msg; };
 
-    if (!r.filename) bad('This row has no filename.');
-    else if (!r.presetRaw) bad('This row has no preset.');
-    else if (!r.preset) bad(`"${r.presetRaw}" isn't a preset. Use one of: ${names}.`);
+    if (isTemplate()) {
+      r.preset = { id: r.code, name: r.code, width: r.width, height: r.height };
+      r.outName = `${r.code}_${r.slides.join('-')}`;
+      if (!r.code) { bad('This row has no code. The template may have been edited by mistake.'); continue; }
+      if (![r.width, r.height].every(v => Number.isInteger(v) && v > 0)) {
+        bad("This row's size is missing or not a whole number. The template may have been edited by mistake.");
+        continue;
+      }
+      if (!r.filename) { r.kind = 'skip'; continue; } // keeping the course's current photo
+    } else {
+      r.preset = resolvePreset(r.presetRaw);
+      r.outName = r.outputRaw || r.filename;
+      if (!r.filename) bad('This row has no filename.');
+      else if (!r.presetRaw) bad('This row has no preset.');
+      else if (!r.preset) bad(`"${r.presetRaw}" isn't a preset. Use one of: ${names}.`);
+    }
 
     // Two rows can use the same photo, but not produce the same output file.
-    const outKey = stemOf(r.outName).toLowerCase();
+    const outKey = (isTemplate() ? r.outName : stemOf(r.outName)).toLowerCase();
     if (r.filename) {
       const first = outSeen.get(outKey);
       if (first && !r.issue) {
         const sameEntry = first.key === r.key && first.preset === r.preset && !r.outputRaw && !first.outputRaw;
-        bad(sameEntry
-          ? `Duplicate of row ${first.line}. This copy is skipped.`
-          : `Would create the same output file as row ${first.line}. Give one of them a different output_filename.`);
+        bad(isTemplate()
+          ? `Same code and slides as row ${first.line}. The template may have a duplicate line.`
+          : sameEntry
+            ? `Duplicate of row ${first.line}. This copy is skipped.`
+            : `Would create the same output file as row ${first.line}. Give one of them a different output_filename.`);
       }
       if (!first) outSeen.set(outKey, r);
     }
@@ -182,7 +237,7 @@ export async function refreshValidation() {
   renderSetup();
   if (!state.rows.length || !state.files.size) return;
 
-  const keys = [...new Set(state.rows.map(r => r.filename.toLowerCase()))]
+  const keys = [...new Set(state.rows.map(r => (r.filename || '').toLowerCase()))]
     .filter(k => k && state.files.has(k) && !state.dims.has(k));
   if (!keys.length) return;
 

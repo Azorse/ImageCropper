@@ -4,6 +4,19 @@ Prepares batches of photos for eLearning courses. A CSV lists each photo and the
 
 Everything runs in the browser. Photos are never uploaded anywhere.
 
+## Two ways to use it
+
+**Course photo swaps (the main use).** Each course has a template in `templates/`: a photo list (CSV) and a photo guide (image). A consultant downloads both from the setup page, writes the filename of each new photo in the `your_photo` column next to its code, and leaves every other row blank. The cropper then crops each photo to the exact size and file type of the image it replaces, shows the course's hotspots as red ovals, and exports a ZIP with:
+
+- `auto/`: photos the swap tool can drop into the published course
+- `manual/`: photos Dan places in Storyline (hotspot slides and buttons Storyline flattens)
+- `instructions.csv`: where every photo goes
+- `export_report.txt`: what was exported and anything left out
+
+Output files are named by code and slides, for example `PEC05-2_1.17.jpg`.
+
+**General batches.** Any CSV with `filename,preset` columns crops to the six size presets in Settings, as before.
+
 ## Project layout
 
 ```
@@ -25,6 +38,9 @@ js/
   progress.js       Saving crop progress in the browser
   nav.js            Switching screens
   utils.js          Small shared helpers
+templates/
+  index.json        List of course templates shown on the setup page
+  PEC/              Position Elbows Closer photo list and guide
 vendor/             Papa Parse 5.4.1 and JSZip 3.10.1, with their licenses
 ```
 
@@ -59,7 +75,16 @@ A browser that has saved its own settings keeps them until that person clicks Re
 
 Preset IDs (`square1`, `landscape2`, etc.) never change. The CSV can use the ID or the display name, ignoring case and spaces.
 
-## CSV format
+## Course template format
+
+```
+code,slides,your_photo,width,height,format,manual_in_storyline,storyline_name,hotspot_guide
+PEC03-1,"Slides 1.12, 5.12",,768,1024,jpg,yes: hotspots,Image.jpeg,"0.1875,0.375,..."
+```
+
+Consultants only fill in `your_photo`. Slide numbers are written as text ("Slide 1.10") so Excel can't change 1.10 into 1.1. Templates are generated from a published course, so don't edit the sizes by hand.
+
+## Preset CSV format
 
 ```
 filename,preset,output_filename

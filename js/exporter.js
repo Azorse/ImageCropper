@@ -4,7 +4,7 @@ import { $, esc, plural, extOf, stemOf, safeName, download } from './utils.js';
 import { cfg } from './config.js';
 import { state } from './state.js';
 import { cropRect } from './crop-math.js';
-import { decodeKey } from './batch.js';
+import { decodeKey, isTemplate } from './batch.js';
 
 function hasTransparency(c, w, h) {
   const d = c.getImageData(0, 0, w, h).data;
@@ -12,7 +12,8 @@ function hasTransparency(c, w, h) {
   return false;
 }
 
-function pickType(srcExt, outCtx, w, h) {
+function pickType(srcExt, outCtx, w, h, forced) {
+  if (forced) return forced; // course templates: same type as the file being replaced
   switch (cfg.current.output.format) {
     case 'png': return 'png';
     case 'jpg': return 'jpg';
@@ -22,7 +23,7 @@ function pickType(srcExt, outCtx, w, h) {
 }
 
 /** Draw the crop area into a canvas of exactly the preset size and encode it. */
-export async function renderOutput(bmp, rect, preset, srcExt) {
+export async function renderOutput(bmp, rect, preset, srcExt, forcedType) {
   const tw = preset.width, th = preset.height;
   let src = bmp, sx = rect.x, sy = rect.y, sw = rect.w, sh = rect.h;
 
@@ -47,7 +48,7 @@ export async function renderOutput(bmp, rect, preset, srcExt) {
   oc.drawImage(src, sx, sy, sw, sh, 0, 0, tw, th);
   if (src !== bmp) src.width = 0;
 
-  const type = pickType(srcExt, oc, tw, th);
+  const type = pickType(srcExt, oc, tw, th, forcedType);
   let fin = out;
   if (type === 'jpg') {
     // JPG has no transparency, so put a white background behind it.
@@ -69,6 +70,20 @@ export async function renderOutput(bmp, rect, preset, srcExt) {
   return { blob, ext: type };
 }
 
+const label = r => isTemplate() ? `${r.code} (slide${r.slides.length > 1 ? 's' : ''} ${r.slides.join(', ')})` : `Row ${r.line}`;
+const csvCell = v => /[",\r\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+
+/** Template exports: a sheet telling Dan where each photo goes. */
+function buildInstructions(ok) {
+  const head = ['code', 'slides', 'file', 'how', 'storyline_name', 'width', 'height', 'consultant_photo'];
+  const lines = [head.join(',')];
+  for (const [r, n] of ok) {
+    lines.push([r.code, r.slides.join(' '), n, r.manual ? `Storyline: ${r.manual.replace(/^yes:\s*/, '')}` : 'automatic swap',
+      r.storyline, r.width, r.height, r.filename].map(csvCell).join(','));
+  }
+  return lines.join('\r\n');
+}
+
 function buildReport(ok, skipped) {
   const lines = [
     'Batch Image Cropper export',
@@ -76,11 +91,11 @@ function buildReport(ok, skipped) {
     `Date: ${new Date().toLocaleString()}`,
     '',
     `Exported (${ok.length}):`,
-    ...ok.map(([r, n]) => `  Row ${r.line}: ${r.filename} -> ${n} (${r.preset.name}, ${r.preset.width}x${r.preset.height})`),
+    ...ok.map(([r, n]) => `  ${label(r)}: ${r.filename} -> ${n} (${r.preset.width}x${r.preset.height})`),
     ''
   ];
   if (skipped.length) {
-    lines.push(`Left out (${skipped.length}):`, ...skipped.map(([r, why]) => `  Row ${r.line}: ${r.filename || '(blank)'} - ${why}`));
+    lines.push(`Left out (${skipped.length}):`, ...skipped.map(([r, why]) => `  ${label(r)}: ${r.filename || '(blank)'} - ${why}`));
   }
   return lines.join('\r\n');
 }
@@ -98,6 +113,7 @@ async function doExport() {
   const skipped = [];
 
   for (const r of state.rows) {
+    if (r.kind === 'skip') continue; // template slot keeping its current photo
     if (r.kind === 'bad') skipped.push([r, r.issue]);
     else if (r.kind !== 'ready') skipped.push([r, 'Not checked yet.']);
     else if (!state.crops[r.index]) skipped.push([r, 'Crop not confirmed.']);
@@ -114,8 +130,9 @@ async function doExport() {
       bmp = await decodeKey(r.key);
       const p = r.preset;
       const rect = cropRect(state.crops[r.index], bmp.width, bmp.height, p.width, p.height);
-      const { blob, ext } = await renderOutput(bmp, rect, p, extOf(r.filename));
-      const stem = safeName(stemOf(r.outName));
+      const { blob, ext } = await renderOutput(bmp, rect, p, extOf(r.filename), isTemplate() ? r.fmt : null);
+      const folder = isTemplate() ? (r.manual ? 'manual/' : 'auto/') : '';
+      const stem = folder + safeName(isTemplate() ? r.outName : stemOf(r.outName)); // slide numbers have dots, so no stripping
       let name = `${stem}.${ext}`, k = 2;
       while (used.has(name.toLowerCase())) name = `${stem}_${k++}.${ext}`;
       used.add(name.toLowerCase());
@@ -139,6 +156,7 @@ async function doExport() {
   }
 
   zip.file('export_report.txt', buildReport(ok, skipped));
+  if (isTemplate()) zip.file('instructions.csv', '\ufeff' + buildInstructions(ok)); // BOM so Excel reads it as UTF-8
   status.textContent = 'Building ZIP...';
   try {
     // Photos are already compressed, so storing is faster with no size cost.
@@ -147,7 +165,7 @@ async function doExport() {
     status.textContent = '';
     result.innerHTML = `<div class="note ok">Downloaded ${plural(ok.length, 'photo')}.</div>` + (skipped.length
       ? `<div class="note warn">${skipped.length === 1 ? '1 photo was' : skipped.length + ' photos were'} left out:<ul>${
-          skipped.map(([r, why]) => `<li>Row ${r.line}: ${esc(r.filename || '(blank)')}. ${esc(why)}</li>`).join('')}</ul></div>`
+          skipped.map(([r, why]) => `<li>${esc(label(r))}: ${esc(r.filename || '(blank)')}. ${esc(why)}</li>`).join('')}</ul></div>`
       : '');
   } catch (e) {
     status.textContent = '';

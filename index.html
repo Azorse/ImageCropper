@@ -31,11 +31,17 @@
     <h1>Set up a batch</h1>
     <p class="sub">Load a CSV that lists your photos and their sizes, then load the photos. Nothing is uploaded anywhere. Everything stays on this computer.</p>
 
+    <div class="card" id="templatesCard" hidden>
+      <h2>Swapping photos in a course?</h2>
+      <p class="meta">Download the course's photo list and guide. In the photo list, put the filename of each new photo in the <code>your_photo</code> column next to its code, and leave the rest blank. Then load it below.</p>
+      <div id="templateList"></div>
+    </div>
+
     <div class="card step">
       <div class="num">1</div>
       <div class="step-body">
         <h2>Photo list (CSV)</h2>
-        <p class="meta">Columns: <code>filename</code>, <code>preset</code>, and optionally <code>output_filename</code>. <button class="linkbtn" id="btnSample">Download a sample CSV</button></p>
+        <p class="meta">A filled-in course photo list, or your own CSV with <code>filename</code>, <code>preset</code>, and optionally <code>output_filename</code>. <button class="linkbtn" id="btnSample">Download a sample CSV</button></p>
         <div class="row"><button class="btn" id="btnCsv">Choose CSV</button><span class="meta" id="csvStatus">No file chosen</span></div>
         <div id="csvMsgs"></div>
         <input type="file" id="inCsv" accept=".csv,text/csv" hidden>
@@ -72,7 +78,7 @@
       <div class="fname" id="cFile"></div>
       <div class="meta" id="cOut"></div>
     </div>
-    <div><span class="meta">Size:</span> <b id="cPreset"></b> <span class="meta" id="cSize"></span></div>
+    <div><span class="meta" id="cPresetLabel">Size:</span> <b id="cPreset"></b> <span class="meta" id="cSize"></span></div>
     <span class="pill todo" id="cState"></span>
     <div style="margin-left:auto;min-width:220px">
       <div class="meta"><span id="cPos"></span> &middot; <span id="cProgress"></span></div>
@@ -92,6 +98,7 @@
         <button class="btn zbtn" id="zIn" title="Zoom in">+</button>
       </div>
       <div class="meta" id="zInfo" style="margin-top:6px"></div>
+      <div id="cHot" class="note warn" hidden>The red ovals are this slide's clickable hotspots. Line the matching body parts up inside them. If they won't line up, crop it the best you can and Dan will adjust the hotspots.</div>
       <div id="cWarn" class="note warn" hidden></div>
       <h3>Tips</h3>
       <div class="keys">
@@ -121,7 +128,7 @@
     <div class="card" style="margin-top:16px">
       <div class="row" style="justify-content:space-between"><h2 style="margin:0">Photos</h2><label class="meta"><input type="checkbox" id="rOnlyIssues"> Only show photos that need attention</label></div>
       <div class="tablewrap" style="max-height:420px">
-        <table><thead><tr><th>Row</th><th>Photo</th><th>Size</th><th>Status</th><th></th></tr></thead><tbody id="rBody"></tbody></table>
+        <table><thead><tr><th id="rHeadRow">Row</th><th>Photo</th><th>Size</th><th>Status</th><th></th></tr></thead><tbody id="rBody"></tbody></table>
       </div>
     </div>
     <div class="card">

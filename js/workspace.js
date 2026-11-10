@@ -3,7 +3,7 @@
 import { $, clamp } from './utils.js';
 import { state, view } from './state.js';
 import { baseCrop, maxZoom, cropRect, defaultCrop } from './crop-math.js';
-import { decodeKey, cropList } from './batch.js';
+import { decodeKey, cropList, isTemplate } from './batch.js';
 import { saveProgress } from './progress.js';
 import { showView, getView } from './nav.js';
 
@@ -138,9 +138,16 @@ function resetCrop() {
 function renderChrome() {
   const row = view.row, p = row.preset;
   $('#cFile').textContent = row.filename;
-  $('#cOut').textContent = row.outputRaw ? `Saves as ${row.outputRaw}` : '';
+  $('#cPresetLabel').textContent = isTemplate() ? 'Code:' : 'Size:';
   $('#cPreset').textContent = p.name;
   $('#cSize').textContent = `${p.width} × ${p.height} px`;
+  if (isTemplate()) {
+    const where = `Slide${row.slides.length > 1 ? 's' : ''} ${row.slides.join(', ')}`;
+    $('#cOut').textContent = row.manual ? `${where} · Dan places this one in Storyline (${row.manual.replace(/^yes:\s*/, '')})` : where;
+  } else {
+    $('#cOut').textContent = row.outputRaw ? `Saves as ${row.outputRaw}` : '';
+  }
+  $('#cHot').hidden = !(row.hotspots && row.hotspots.length);
   const done = view.list.filter(r => state.crops[r.index]).length;
   $('#cPos').textContent = `Photo ${view.pos + 1} of ${view.list.length}`;
   $('#cProgress').textContent = `${done} of ${view.list.length} confirmed`;
@@ -216,6 +223,27 @@ function draw() {
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 2;
   ctx.strokeRect(fx, fy, fw, fh);
+
+  // Hotspot guide: where the course's clickable areas sit on this image.
+  if (view.row.hotspots && view.row.hotspots.length) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(fx, fy, fw, fh);
+    ctx.clip();
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([7, 5]);
+    for (const h of view.row.hotspots) {
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)'; // dark halo so the ovals show on light photos too
+      ctx.beginPath();
+      ctx.ellipse(fx + (h.x + h.w / 2) * fw, fy + (h.y + h.h / 2) * fh, h.w / 2 * fw + 1.5, h.h / 2 * fh + 1.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = '#FF3B3B';
+      ctx.beginPath();
+      ctx.ellipse(fx + (h.x + h.w / 2) * fw, fy + (h.y + h.h / 2) * fh, h.w / 2 * fw, h.h / 2 * fh, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
   drawPreview();
   updateZoomUI();

@@ -7,6 +7,7 @@ export const state = {
   rows: [],          // one per CSV row, see batch.js for the fields
   csvErrors: [],     // problems that stop the whole batch
   csvWarnings: [],   // parser warnings worth showing
+  mode: 'presets',   // 'presets' or 'template', set from the CSV's columns
 
   files: new Map(),  // lowercase filename -> { name, getBlob() }
   dupFiles: new Set(),
