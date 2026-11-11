@@ -8,8 +8,8 @@ Everything runs in the browser. Photos are never uploaded anywhere.
 
 **Course photo swaps (the main use).** Each course has a template in `templates/`: a photo list (CSV) and a photo guide (image). A consultant downloads both from the setup page, writes the filename of each new photo in the `your_photo` column next to its code, and leaves every other row blank. The cropper then crops each photo to the exact size and file type of the image it replaces, shows the course's hotspots as red ovals, and exports a ZIP with:
 
-- `auto/`: photos the swap tool can drop into the published course
-- `manual/`: photos Dan places in Storyline (hotspot slides and buttons Storyline flattens)
+- `Production/`: photos the swap tool drops into the published course
+- `Storyline/`: photos Dan places in Storyline (hotspot slides and buttons Storyline flattens)
 - `instructions.csv`: where every photo goes
 - `export_report.txt`: what was exported and anything left out
 

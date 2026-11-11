@@ -78,7 +78,7 @@ function buildInstructions(ok) {
   const head = ['code', 'slides', 'file', 'how', 'storyline_name', 'width', 'height', 'consultant_photo'];
   const lines = [head.join(',')];
   for (const [r, n] of ok) {
-    lines.push([r.code, r.slides.join(' '), n, r.manual ? `Storyline: ${r.manual.replace(/^yes:\s*/, '')}` : 'automatic swap',
+    lines.push([r.code, r.slides.join(' '), n, r.manual ? `Storyline: ${r.manual.replace(/^yes:\s*/, '')}` : 'Production (automatic swap)',
       r.storyline, r.width, r.height, r.filename].map(csvCell).join(','));
   }
   return lines.join('\r\n');
@@ -131,7 +131,7 @@ async function doExport() {
       const p = r.preset;
       const rect = cropRect(state.crops[r.index], bmp.width, bmp.height, p.width, p.height);
       const { blob, ext } = await renderOutput(bmp, rect, p, extOf(r.filename), isTemplate() ? r.fmt : null);
-      const folder = isTemplate() ? (r.manual ? 'manual/' : 'auto/') : '';
+      const folder = isTemplate() ? (r.manual ? 'Storyline/' : 'Production/') : '';
       const stem = folder + safeName(isTemplate() ? r.outName : stemOf(r.outName)); // slide numbers have dots, so no stripping
       let name = `${stem}.${ext}`, k = 2;
       while (used.has(name.toLowerCase())) name = `${stem}_${k++}.${ext}`;

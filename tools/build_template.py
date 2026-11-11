@@ -166,7 +166,7 @@ height = HEAD + sum(SEC + ((len(rs) + cols - 1) // cols) * CELL for _, rs in sec
 sheet = Image.new('RGB', (cols * TW, height), (245, 247, 248)); dr = ImageDraw.Draw(sheet)
 dr.rectangle([0, 0, cols * TW, HEAD - 14], fill=(5, 102, 58))
 dr.text((16, 12), f"{cfg['title']}: photo guide", fill='white', font=F(22, True))
-dr.text((16, 38), "Red outlines = hotspots. MANUAL = Dan places this photo in Storyline. Everything else swaps automatically.", fill=(234, 246, 239), font=F(12))
+dr.text((16, 38), "Red outlines = hotspots. STORYLINE = Dan places this photo in Storyline. Everything else goes to Production and swaps automatically.", fill=(234, 246, 239), font=F(12))
 y0 = HEAD
 for title, rs in sections:
     dr.text((10, y0 + 8), title.upper(), fill=(91, 103, 112), font=F(14, True))
@@ -183,7 +183,7 @@ for title, rs in sections:
             (dr.rectangle if rect else dr.ellipse)(box, outline=(230, 30, 30), width=2)
         dr.text((x + 8, y + TH - 4), r['code'], fill=(5, 102, 58), font=F(17, True))
         dr.text((x + 8, y + TH + 18), f"Slides {', '.join(r['slides'])}", fill=(31, 42, 51), font=F(12))
-        dr.text((x + 8, y + TH + 33), f"{r['w']} × {r['h']} {r['fmt'].upper()}" + ("   MANUAL" if r['manual'] else ""),
+        dr.text((x + 8, y + TH + 33), f"{r['w']} × {r['h']} {r['fmt'].upper()}" + ("   STORYLINE" if r['manual'] else ""),
                 fill=(196, 90, 0) if r['manual'] else (91, 103, 112), font=F(11, bool(r['manual'])))
     y0 += ((len(rs) + cols - 1) // cols) * CELL
 sheet.save(cfg['out_guide'])

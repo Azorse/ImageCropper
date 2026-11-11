@@ -17,7 +17,7 @@ function formatNote() {
   const { format, quality } = cfg.current.output;
   if (isTemplate()) {
     return `Each photo is saved in the same file type as the one it replaces. JPG quality ${quality}%. ` +
-      'Photos Dan places by hand in Storyline go in a "manual" folder, and the rest in an "auto" folder.';
+      'Photos Dan places by hand in Storyline go in a "Storyline" folder, and the rest in a "Production" folder.';
   }
   const text = {
     auto: 'Photos will be saved as JPG. PNGs with transparent areas stay PNG.',
