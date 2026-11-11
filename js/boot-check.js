@@ -14,8 +14,8 @@
   if (location.protocol !== 'file:') return;
   document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('bootError');
-    el.textContent = "This app has to be opened through a web server, not by double-clicking index.html. " +
-      "See README.md for a one-line way to run it on your computer.";
+    el.textContent = "This app can't run from a file on your computer. " +
+      "Open it at https://azorse.github.io/ImageCropper/ instead.";
     el.hidden = false;
   });
 })();
