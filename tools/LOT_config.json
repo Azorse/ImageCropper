@@ -1,0 +1,106 @@
+{
+ "pkg": "COURSE_FOLDER",
+ "prefix": "LOT",
+ "title": "Lifting Options, Technique and Pace",
+ "targets": [
+  "1.11",
+  "1.13",
+  "1.15",
+  "1.16",
+  "1.18",
+  "5.11",
+  "5.13",
+  "5.15",
+  "5.16",
+  "5.18",
+  "8.1",
+  "8.2",
+  "8.3",
+  "8.4",
+  "8.5"
+ ],
+ "codes": [
+  [
+   "11512-3-B.png",
+   "1.11",
+   "LOT02-1"
+  ],
+  [
+   "Image2.ashx.png",
+   "1.11",
+   "LOT02-2"
+  ],
+  [
+   "1236-3-B.png",
+   "1.11",
+   "LOT02-3"
+  ],
+  [
+   "8029-3-S man picking up water bottle.png",
+   "1.11",
+   "LOT02-4"
+  ],
+  [
+   "83-FLEX KNEES.jpeg",
+   "1.13",
+   "LOT03-1"
+  ],
+  [
+   "11310-3-S Woman stacking fruit boxes (no ethnic diversity).png",
+   "1.15",
+   "LOT04-1S"
+  ],
+  [
+   "11310-3-B.png",
+   "1.16",
+   "LOT04-1B"
+  ],
+  [
+   "1456-B office woman lift box.jpeg",
+   "1.18",
+   "LOT05-1"
+  ],
+  [
+   "15-s man lift burger king box.jpeg",
+   "1.18",
+   "LOT05-2"
+  ],
+  [
+   "3241-b man with apron lifting bags.jpeg",
+   "1.18",
+   "LOT05-3"
+  ],
+  [
+   "Image.ashx.png",
+   "8.1",
+   "LOT01-1"
+  ],
+  [
+   "Image1.ashx.png",
+   "8.1",
+   "LOT01-2"
+  ],
+  [
+   "DSC01815 copy.JPG",
+   "8.2",
+   "LOT04-2"
+  ],
+  [
+   "DSC01818.JPG",
+   "8.3",
+   "LOT02-5"
+  ],
+  [
+   "Align Spine Stressed.jpg",
+   "8.4",
+   "LOT05-4"
+  ],
+  [
+   "Flex Knees Stressed.jpg",
+   "8.5",
+   "LOT03-2"
+  ]
+ ],
+ "out_csv": "templates/LOT/LOT_photo_list.csv",
+ "out_guide": "templates/LOT/LOT_photo_guide.png"
+}
