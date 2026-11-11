@@ -9,8 +9,10 @@ import { initWorkspace } from './workspace.js';
 import { initReview } from './review.js';
 import { initExport } from './exporter.js';
 import { initSettings } from './settings.js';
+import { initTheme } from './theme.js';
 
 async function init() {
+  initTheme(); // works even if the libraries below fail to load
   if (typeof window.Papa === 'undefined' || typeof window.JSZip === 'undefined') {
     const el = $('#bootError');
     el.textContent = "The app couldn't load its helper libraries from the vendor folder. Make sure the whole project folder was uploaded, then reload.";
