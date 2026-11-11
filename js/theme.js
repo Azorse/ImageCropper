@@ -10,8 +10,10 @@ const current = () => document.documentElement.getAttribute('data-theme') === 'd
 function render() {
   const dark = current() === 'dark';
   // The button offers the other mode
-  $('#btnTheme').innerHTML = dark ? `${SUN}<span>Light mode</span>` : `${MOON}<span>Dark mode</span>`;
-  $('#btnTheme').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  const btn = $('#btnTheme');
+  btn.innerHTML = dark ? SUN : MOON;
+  btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  btn.title = btn.getAttribute('aria-label'); // shown on hover
 }
 
 export function initTheme() {

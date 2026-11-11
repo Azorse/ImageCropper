@@ -113,5 +113,5 @@ dialog::backdrop{background:rgba(20,30,36,.45)}
 a.btn{text-decoration:none;display:inline-block}
 
 /* Light/dark toggle */
-.theme-toggle{display:inline-flex;align-items:center;gap:6px}
-.theme-toggle svg{width:16px;height:16px;flex:none}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px}
+.theme-toggle svg{width:18px;height:18px;flex:none}
