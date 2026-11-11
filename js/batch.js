@@ -33,11 +33,14 @@ const TEMPLATE_FIELDS = ['code', 'slides', 'your_photo', 'width', 'height'];
 /** Slide numbers like "1.10". Reading them as text means Excel can't turn 1.10 into 1.1. */
 const parseSlides = s => (String(s || '').match(/\d+\.\d+/g) || []);
 
-/** "x,y,w,h;x,y,w,h" as fractions of the image. */
+/** "x,y,w,h;r:x,y,w,h" as fractions of the image. Plain = oval, "r:" = rectangle. */
 function parseHotspots(s) {
-  return String(s || '').split(';').map(part => part.split(',').map(Number))
-    .filter(v => v.length === 4 && v.every(Number.isFinite))
-    .map(([x, y, w, h]) => ({ x, y, w, h }));
+  return String(s || '').split(';').map(part => {
+    part = part.trim();
+    const rect = part.startsWith('r:');
+    const v = (rect ? part.slice(2) : part).split(',').map(Number);
+    return v.length === 4 && v.every(Number.isFinite) ? { shape: rect ? 'rect' : 'oval', x: v[0], y: v[1], w: v[2], h: v[3] } : null;
+  }).filter(Boolean);
 }
 
 export function parseCsv(text) {

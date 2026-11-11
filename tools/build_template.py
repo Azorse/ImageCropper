@@ -9,6 +9,8 @@ cfg = json.load(open(sys.argv[1]))
 PKG = cfg['pkg']
 TARGETS = [tuple(map(int, s.split('.'))) for s in cfg['targets']]
 CODES = {(n, s): c for n, s, c in cfg['codes']}
+# hidden references to a picture's original image (left behind by Change Picture); never shown
+IGNORE = {(n, s) for n, s in cfg.get('ignore', [])}
 
 ESC = {'n': '\n', 'r': '\r', 't': '\t', 'b': '\b', 'f': '\f', 'v': '\v', '0': '\0'}
 def unjs(s):
@@ -72,12 +74,15 @@ def positioned(node, ox=0, oy=0):
     elif isinstance(node, list):
         for v in node: yield from positioned(v, ox, oy)
 
-def ovals(sd):
+def hotspot_shapes(sd):
+    """Every oval and rectangle hotspot on the slide, as (shape, x, y, w, h)."""
     out = []
     for o, x, y in positioned(sd.get('slideLayers', [])):
         dat = o.get('data') if isinstance(o.get('data'), dict) else {}
         vd = dat.get('vectorData') if isinstance(dat.get('vectorData'), dict) else None
-        if vd and str(vd.get('altText', '')).startswith('Oval Hotspot'): out.append((x, y, o['width'], o['height']))
+        alt = str((vd or {}).get('altText', ''))
+        if alt.startswith('Oval Hotspot'): out.append(('o', x, y, o['width'], o['height']))
+        elif alt.startswith('Rectangular Hotspot'): out.append(('r', x, y, o['width'], o['height']))
     return out
 
 rows = {}
@@ -85,18 +90,21 @@ missing_codes = []
 for key in TARGETS:
     s, sd = slides[key]
     lab = f'{key[0]}.{key[1]}'
-    hs = ovals(sd)
+    hs = hotspot_shapes(sd)
     for o, x, y in positioned(sd.get('slideLayers', [])):
         for im in o.get('imagelib', []) or []:
             aid = im['assetId']
             if not is_photo(aid): continue
+            if (im.get('altText', ''), lab) in IGNORE: continue
             r = rows.setdefault(('a', aid), {'slides': [], 'aid': aid, 'alt': im.get('altText', ''), 'hs': {}, 'flat': False})
             if lab not in r['slides']: r['slides'].append(lab)
             W, H = o['width'], o['height']
-            for hx, hy, hw, hh in hs:
+            for shape, hx, hy, hw, hh in hs:
                 cx, cy = hx + hw / 2, hy + hh / 2
-                if x <= cx <= x + W and y <= cy <= y + H:
-                    r['hs'].setdefault(lab, []).append(tuple(round(v, 4) for v in ((hx - x) / W, (hy - y) / H, hw / W, hh / H)))
+                if not (x <= cx <= x + W and y <= cy <= y + H): continue
+                # a rectangle covering most of the photo just makes the whole photo clickable; not a body target
+                if shape == 'r' and hw * hh >= 0.5 * W * H: continue
+                r['hs'].setdefault(lab, []).append((shape,) + tuple(round(v, 4) for v in ((hx - x) / W, (hy - y) / H, hw / W, hh / H)))
         # pictures Storyline flattened into Shape*.png (effects baked in); the original photo is in zoomdata
         dat = o.get('data') if isinstance(o.get('data'), dict) else {}
         h5 = dat.get('html5data') or {}
@@ -117,9 +125,10 @@ for r in rows.values():
         print('WARNING: no original photo found for flattened image', r['alt'], r['slides']); continue
     sets = {tuple(sorted(v)) for v in r['hs'].values()}
     if len(sets) > 1: print('WARNING: hotspots differ between slides for', r['alt'], list(r['hs']))
-    r['hsstr'] = ';'.join(','.join(map(str, f)) for f in (next(iter(sets)) if sets else []))
-    r['code'] = CODES.get((r['alt'], r['slides'][0]))
-    if not r['code']: missing_codes.append((r['alt'], r['slides'][0])); continue
+    # oval: "x,y,w,h"   rectangle: "r:x,y,w,h"  (fractions of the image)
+    r['hsstr'] = ';'.join(('r:' if f[0] == 'r' else '') + ','.join(map(str, f[1:])) for f in (next(iter(sets)) if sets else []))
+    r['code'] = CODES.get((os.path.basename(assets[r['aid']]['url']), r['slides'][0])) or CODES.get((r['alt'], r['slides'][0]))
+    if not r['code']: missing_codes.append((r['alt'], os.path.basename(assets[r['aid']]['url']), r['slides'][0])); continue
     r['file'] = file_of(r['aid'])
     r['w'], r['h'] = real_size(r['aid'])
     r['fmt'] = 'png' if r['file'].lower().endswith('.png') else 'jpg'
@@ -157,7 +166,7 @@ height = HEAD + sum(SEC + ((len(rs) + cols - 1) // cols) * CELL for _, rs in sec
 sheet = Image.new('RGB', (cols * TW, height), (245, 247, 248)); dr = ImageDraw.Draw(sheet)
 dr.rectangle([0, 0, cols * TW, HEAD - 14], fill=(5, 102, 58))
 dr.text((16, 12), f"{cfg['title']}: photo guide", fill='white', font=F(22, True))
-dr.text((16, 38), "Red ovals = hotspots. MANUAL = Dan places this photo in Storyline. Everything else swaps automatically.", fill=(234, 246, 239), font=F(12))
+dr.text((16, 38), "Red outlines = hotspots. MANUAL = Dan places this photo in Storyline. Everything else swaps automatically.", fill=(234, 246, 239), font=F(12))
 y0 = HEAD
 for title, rs in sections:
     dr.text((10, y0 + 8), title.upper(), fill=(91, 103, 112), font=F(14, True))
@@ -168,8 +177,10 @@ for title, rs in sections:
         x = (i % cols) * TW; y = y0 + (i // cols) * CELL
         px = x + (TW - pic.width) // 2; py = y + (TH - 10 - pic.height) // 2; sheet.paste(pic, (px, py))
         for f in filter(None, r['hsstr'].split(';')):
-            a, b, c, e = map(float, f.split(','))
-            dr.ellipse([px + a * pic.width, py + b * pic.height, px + (a + c) * pic.width, py + (b + e) * pic.height], outline=(230, 30, 30), width=2)
+            rect = f.startswith('r:')
+            a, b, c, e = map(float, f[2:].split(',') if rect else f.split(','))
+            box = [px + a * pic.width, py + b * pic.height, px + (a + c) * pic.width, py + (b + e) * pic.height]
+            (dr.rectangle if rect else dr.ellipse)(box, outline=(230, 30, 30), width=2)
         dr.text((x + 8, y + TH - 4), r['code'], fill=(5, 102, 58), font=F(17, True))
         dr.text((x + 8, y + TH + 18), f"Slides {', '.join(r['slides'])}", fill=(31, 42, 51), font=F(12))
         dr.text((x + 8, y + TH + 33), f"{r['w']} × {r['h']} {r['fmt'].upper()}" + ("   MANUAL" if r['manual'] else ""),

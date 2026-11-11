@@ -233,14 +233,17 @@ function draw() {
     ctx.lineWidth = 2.5;
     ctx.setLineDash([7, 5]);
     for (const h of view.row.hotspots) {
-      ctx.strokeStyle = 'rgba(0,0,0,0.55)'; // dark halo so the ovals show on light photos too
-      ctx.beginPath();
-      ctx.ellipse(fx + (h.x + h.w / 2) * fw, fy + (h.y + h.h / 2) * fh, h.w / 2 * fw + 1.5, h.h / 2 * fh + 1.5, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      const hx = fx + h.x * fw, hy = fy + h.y * fh, hw = h.w * fw, hh = h.h * fh;
+      const outline = grow => {
+        ctx.beginPath();
+        if (h.shape === 'rect') ctx.rect(hx - grow, hy - grow, hw + grow * 2, hh + grow * 2);
+        else ctx.ellipse(hx + hw / 2, hy + hh / 2, hw / 2 + grow, hh / 2 + grow, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      };
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)'; // dark halo so the outline shows on light photos too
+      outline(1.5);
       ctx.strokeStyle = '#FF3B3B';
-      ctx.beginPath();
-      ctx.ellipse(fx + (h.x + h.w / 2) * fw, fy + (h.y + h.h / 2) * fh, h.w / 2 * fw, h.h / 2 * fh, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      outline(0);
     }
     ctx.restore();
   }

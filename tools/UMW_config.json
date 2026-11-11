@@ -32,7 +32,7 @@
   ],
   [
    "32-4-S Man carrying hose_weight on shoulder.png",
-   "1.8",
+   "1.12",
    "UMW03-1S"
   ],
   [
@@ -137,5 +137,15 @@
   ]
  ],
  "out_csv": "templates/UMW/UMW_photo_list.csv",
- "out_guide": "templates/UMW/UMW_photo_guide.png"
+ "out_guide": "templates/UMW/UMW_photo_guide.png",
+ "ignore": [
+  [
+   "32-4-S Man carrying hose_weight on shoulder.png",
+   "1.8"
+  ],
+  [
+   "32-4-S Man carrying hose_weight on shoulder.png",
+   "5.8"
+  ]
+ ]
 }

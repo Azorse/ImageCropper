@@ -1,12 +1,12 @@
 code,slides,your_photo,width,height,format,manual_in_storyline,storyline_name,hotspot_guide
 UMW01-1S,"Slides 1.8, 5.8",,2048,1536,png,yes: hotspots,Image.ashx.png,"0.5343,0.2687,0.3493,0.3989;0.5343,0.2687,0.3493,0.3989"
-UMW03-1S,"Slides 1.8, 1.12, 5.8, 5.12",,1440,1080,png,yes: hotspots,32-4-S Man carrying hose_weight on shoulder.png,"0.368,0.1801,0.183,0.2216"
 UMW01-1B,"Slides 1.8, 5.8",,2048,1536,png,yes: hotspots,Image2.ashx.png,"0.5343,0.2687,0.3493,0.3989"
 UMW02-1S,"Slides 1.10, 5.10",,1536,2048,png,,2461-3-S Woman using Stapler (No Ethnic).png,
 UMW02-1B,"Slides 1.10, 5.10",,1536,2048,png,,2461-3-B.png,
 UMW02-2B,"Slides 1.10, 5.10",,1536,2048,png,,11441-3-B.png,
 UMW02-3S,"Slides 1.10, 5.10",,1152,1536,png,,Image.ashx.png,
 UMW02-3B,"Slides 1.10, 5.10",,1158,1536,png,,Image2.ashx.png,
+UMW03-1S,"Slides 1.12, 5.12",,1440,1080,png,yes: hotspots,32-4-S Man carrying hose_weight on shoulder.png,"0.368,0.1801,0.183,0.2216"
 UMW03-1B,"Slides 1.12, 5.12",,1440,1080,png,yes: hotspots,32-4-B.png,"0.368,0.1801,0.183,0.2216"
 UMW04-1,"Slides 1.15, 5.15",,2048,1536,png,,umw04a.ashx.png,
 UMW04-2,"Slides 1.15, 5.15",,2048,1536,png,,umw04b.ashx.png,
