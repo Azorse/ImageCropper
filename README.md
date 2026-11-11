@@ -4,22 +4,11 @@ Crops a batch of photos to exact pixel sizes for eLearning courses. You give it 
 
 Everything runs in your browser. Photos are never uploaded anywhere, and your originals are never changed.
 
-## 1. Start the app
+## 1. Open the app
 
-The app has to run through a small local web server. Double-clicking `index.html` won't work, and the page will tell you so.
+Go to **https://azorse.github.io/ImageCropper/** in Chrome or Edge.
 
-1. Install Python if you don't have it (https://www.python.org/downloads, and tick "Add Python to PATH" during setup).
-2. Open a terminal in the `image-cropper` folder. On Windows, open the folder in File Explorer, click the address bar, type `cmd` and press Enter.
-3. Run:
-
-   ```
-   python -m http.server 8000
-   ```
-
-   On a Mac, use `python3` instead of `python`.
-4. Open http://localhost:8000 in Chrome or Edge.
-
-Leave the terminal open while you work. Close it when you're done.
+There's nothing to install. Bookmark the page so it's easy to find next time.
 
 ## 2. Fill in the photo list
 
@@ -96,8 +85,7 @@ Files are named by code and slide, for example `PEC05-2_1.17.jpg`.
 
 | What you see | What to do |
 |---|---|
-| A red message saying the app must be opened through a web server | You double-clicked `index.html`. Follow step 1 instead. |
-| `python` is not recognized | Python isn't installed, or wasn't added to PATH. Reinstall it and tick "Add Python to PATH". |
+| A red message saying the app must be opened through a web server | You opened a downloaded copy of `index.html`. Use the link in step 1 instead. |
 | A photo is listed as missing | The filename in the CSV doesn't match the file. Check the spelling and the extension (`.jpg` vs `.jpeg`). |
 | A photo is listed as too small | It's smaller than the size it needs. Find a larger version. Photos are never stretched. |
 | My saved crops didn't come back | The CSV has to be exactly the same file. Any edit to it starts a fresh batch. |
@@ -106,6 +94,8 @@ Files are named by code and slide, for example `PEC05-2_1.17.jpg`.
 
 ## For maintainers
 
+- **Publishing.** The site is served by GitHub Pages from the `master` branch of `Azorse/ImageCropper`. Push a change and it's live at the link above in a minute or two. Everyone gets it on their next page refresh.
+- **Running it locally** to test changes before pushing: in this folder, run `python -m http.server 8000` (or `python3` on a Mac), then open http://localhost:8000. Opening `index.html` directly from disk won't work.
 - **No build step.** Edit a file and refresh the browser. Code is in `js/`, styling in `css/styles.css`, and Papa Parse and JSZip are in `vendor/`.
 - **Team default sizes** are in `presets.json`. One person can override them in **Settings**, and **Export settings** downloads a `presets.json` you can commit.
 - **Course templates** live in `templates/` and are listed in `templates/index.json`. They're generated from a published Storyline course with `tools/build_template.py <course>_config.json`, which needs Python with Pillow. `tools/checks.py` checks a course's English and Spanish versions and its photo coverage. Don't edit template sizes by hand.
